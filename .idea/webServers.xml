@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="28628d69-9b1a-43ef-9e45-f8a2e108a1fd" name="Test_Serv" url="http://localhost">
+        <fileTransfer mountedRoot="C:\Users\bobro\Personal_Projects\Crossings_External" accessType="MOUNT" port="0" />
+      </webServer>
+    </option>
+  </component>
+</project>

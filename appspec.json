@@ -1,21 +1,22 @@
 {
   "settings": [],
-  "providedAppFiles": [],
-  "createsArtifacts": false,
   "license": {
     "key": "MIT"
   },
   "language": "eng",
   "keywords": [
-    "example",
-    "template"
+    "roads",
+    "crossings",
+    "intersections",
+    "points",
+    "map"
   ],
   "people": [
     {
-      "firstName": "Charles",
+      "firstName": "Bo",
       "middleInitials": null,
-      "lastName": "Darwin",
-      "email": "creator@example.com",
+      "lastName": "Brown",
+      "email": "bobrown.dev@gmail.com",
       "roles": [
         "author",
         "creator"
@@ -25,21 +26,7 @@
       "affiliationRor": null
     }
   ],
-  "funding": [
-    {
-      "name": "funder name",
-      "comment": "grant for App"
-    }
-  ],
-  "references": [
-    {
-      "type": "IsDescribedBy",
-      "note": "Darwin, C. 1900. The creation. Journal XY. 1-2",
-      "url": "https://anylink.xyz"
-    }
-  ],
   "documentation": {
-    "url": "https://github.com/yourAccount/my-app/README.md"
+    "url": "https://github.com/Bo-Brown-Dev/Road-Crossings/blob/main/README.md"
   }
 }
-
