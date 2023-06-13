@@ -46,6 +46,8 @@ class TestApp(unittest.TestCase):
                          )
         )
 
+        ox.settings.use_cache=False
+
         #self.expected_buffer = pd.read_pickle(
         #  os.path.join(ROOT_DIR, r'tests/resources/local_app_files/provided_only/provided-app-files/buffers_gabs_23.pickle'
         #               ))

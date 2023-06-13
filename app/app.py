@@ -21,6 +21,8 @@ class App(object):
 
         print('starting')
 
+        ox.settings.use_cache=False
+
         parsed_data: list[GeoDataFrame] = self.parseMovingPandas(data)
 
         print('data parsed')
