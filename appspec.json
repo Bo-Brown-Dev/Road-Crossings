@@ -3,6 +3,7 @@
   "license": {
     "key": "MIT"
   },
+  "CreatesArtifacts": true
   "language": "eng",
   "keywords": [
     "roads",
