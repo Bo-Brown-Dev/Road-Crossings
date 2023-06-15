@@ -92,7 +92,7 @@ The TrajectoryCollection is broken into three dataframes:
 * **Track Lines:** A collection of LineStrings made by connecting each point from the Track Points collection to the associated
 animal's next location by timestamp.
 
-  ![](documentation/Tracks Only Reference.png)
+  ![](./documentation/Tracks Only Reference.png)
 <br></br>
 <br></br>
 
@@ -102,7 +102,7 @@ This polygon is used later as the shape to query roads data from OpenStreetMap.
 
   *(See below for more info)*
 
-  ![](documentation/Tracks With Buffers Reference.png)
+  ![](./documentation/Tracks With Buffers Reference.png)
 <br></br>
 <br></br>
 
@@ -111,7 +111,7 @@ The app only selects roads from within the polygon, which greatly reduces the pr
 analyze the roads data. Since the polygon is 1000 meters from any point on our tracking lines, the API returns all roads within 1 kilometer of 
 our tracking data.
 
-  ![](documentation/Roads within Buffers Reference.png)
+  ![](./documentation/Roads within Buffers Reference.png)
   
   *the polygon in this figure is the Track Buffer created in the previous step. The black lines show the full extent of
  the roads data that was ingested*
@@ -123,7 +123,7 @@ our tracking data.
 * **Crossings Analysis:** The resulting roads and the Track Lines are overlayed on one another, and the intersection is
 taken from this overlay. Attributes from both datasets are retained. Also note that an animal track with a line segment 
 that happens to follow the exact path of a road will appear as 2 crossing points at either end of the line segment.
-  ![](documentation/Tracks with Roads and Crossings Reference.png)
+  ![](./documentation/Tracks with Roads and Crossings Reference.png)
 <br></br>
 <br></br>
 
@@ -140,13 +140,13 @@ one after. There are some important considerations when using this data which ar
 The points in the trajectory are shown as circles and the Trajectory is the set of lines that connects all these points. The segments of
 the Trajectory are the smaller lines that connect each pair of points. Roads are represented by black lines
 <br></br>
-  ![](documentation/Before Insert Ref.png)
+  ![](./documentation/Before Insert Ref.png)
 <br></br>
 The output is mapped below. New points inserted as crossing points are shown in red. Segments are split at the location
 of crossing points, which can be seen where lines turn orange after intersecting with a road. 
 <br></br>
 
-  ![](documentation/Insert Crossings Reference.png)
+  ![](./documentation/Insert Crossings Reference.png)
 
  **These points are inferences, not observations.** 
 <br></br>
