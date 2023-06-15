@@ -92,7 +92,7 @@ The TrajectoryCollection is broken into three dataframes:
 * **Track Lines:** A collection of LineStrings made by connecting each point from the Track Points collection to the associated
 animal's next location by timestamp.
 
-  ![](./documentation/Tracks Only Reference.png)
+  ![Lines Representing Animal Tracks](./documentation/Tracks Only Reference.png)
 <br></br>
 <br></br>
 
@@ -102,7 +102,7 @@ This polygon is used later as the shape to query roads data from OpenStreetMap.
 
   *(See below for more info)*
 
-  ![](./documentation/Tracks With Buffers Reference.png)
+  ![Polygon Buffering Tracks by 1km](./documentation/Tracks With Buffers Reference.png)
 <br></br>
 <br></br>
 
