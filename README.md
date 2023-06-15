@@ -199,6 +199,12 @@ Be sure to submit requests to the github!
 
 ### Null or error handling
 
+**Out Of Memory Errors**
+The app can quickly run out of memory when processing datasets larger than 3-7 MB.
+The app will not log an error and will sometimes appear "idle". 
+Please try to filter your data to less than 5MB for the time being. 
+A solution to optimize memory use and prevent OOM errors is in development.
+
 **Unexpected Data Handling:** 
 
 When an animal Trajectory's line segment matches a road segment exactly, the default behavior
