@@ -92,7 +92,7 @@ The TrajectoryCollection is broken into three dataframes:
 * **Track Lines:** A collection of LineStrings made by connecting each point from the Track Points collection to the associated
 animal's next location by timestamp.
 
-![]([documentation/Before Insert Ref.png](https://github.com/Bo-Brown-Dev/Road-Crossings/blob/main/documentation/Before%20Insert%20Ref.png?raw=true))
+[documentation/Before Insert Ref.png](https://github.com/Bo-Brown-Dev/Road-Crossings/blob/main/documentation/Before%20Insert%20Ref.png?raw=true)
 <br></br>
 <br></br>
 
