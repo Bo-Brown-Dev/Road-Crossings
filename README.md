@@ -92,7 +92,7 @@ The TrajectoryCollection is broken into three dataframes:
 * **Track Lines:** A collection of LineStrings made by connecting each point from the Track Points collection to the associated
 animal's next location by timestamp.
 
-  ![Lines Representing Animal Tracks](./documentation/Tracks Only Reference.png)
+![](documentation/Before Insert Ref.png)
 <br></br>
 <br></br>
 
