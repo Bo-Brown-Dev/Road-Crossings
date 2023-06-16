@@ -114,7 +114,8 @@ The app only selects roads from within the polygon, which greatly reduces the pr
 analyze the roads data. Since the polygon is 1000 meters from any point on our tracking lines, the API returns all roads within 1 kilometer of 
 our tracking data.
 
-  ![](./documentation/Roads within Buffers Reference.png)
+  ![Roads within Buffers Reference](https://github.com/Bo-Brown-Dev/Road-Crossings/assets/116322660/68d7bc26-efcd-46ca-8546-016da6755bd6)
+
   
   *the polygon in this figure is the Track Buffer created in the previous step. The black lines show the full extent of
  the roads data that was ingested*
