@@ -91,6 +91,7 @@ The TrajectoryCollection is broken into three dataframes:
 
 * **Track Lines:** A collection of LineStrings made by connecting each point from the Track Points collection to the associated
 animal's next location by timestamp.
+  ![Tracks Only Reference](https://github.com/Bo-Brown-Dev/Road-Crossings/assets/116322660/886f4204-074d-413c-9f77-760c29b28a47)
 
 
 <br></br>
@@ -101,8 +102,10 @@ in the Track Lines collection. The buffer creates a collection of Polygons which
 This polygon is used later as the shape to query roads data from OpenStreetMap.
 
   *(See below for more info)*
+![Tracks With Buffers Reference](https://github.com/Bo-Brown-Dev/Road-Crossings/assets/116322660/6d59bb8d-4925-49a1-8c82-e54f72de9b96)
 
-  ![Polygon Buffering Tracks by 1km](./documentation/Tracks With Buffers Reference.png)
+  ![Uploading Tracks With Buffers Reference.png…]()
+
 <br></br>
 <br></br>
 
@@ -123,7 +126,8 @@ our tracking data.
 * **Crossings Analysis:** The resulting roads and the Track Lines are overlayed on one another, and the intersection is
 taken from this overlay. Attributes from both datasets are retained. Also note that an animal track with a line segment 
 that happens to follow the exact path of a road will appear as 2 crossing points at either end of the line segment.
-  ![](./documentation/Tracks with Roads and Crossings Reference.png)
+  ![Tracks with Roads and Crossings Reference](https://github.com/Bo-Brown-Dev/Road-Crossings/assets/116322660/c46bb398-2518-409d-89e3-5151f3024fcf)
+
 <br></br>
 <br></br>
 
@@ -140,7 +144,8 @@ one after. There are some important considerations when using this data which ar
 The points in the trajectory are shown as circles and the Trajectory is the set of lines that connects all these points. The segments of
 the Trajectory are the smaller lines that connect each pair of points. Roads are represented by black lines
 <br></br>
-  ![](./documentation/Before Insert Ref.png)
+  ![Before Insert Ref](https://github.com/Bo-Brown-Dev/Road-Crossings/assets/116322660/042b527b-12f5-4787-b48c-07d26da6b611)
+
 <br></br>
 The output is mapped below. New points inserted as crossing points are shown in red. Segments are split at the location
 of crossing points, which can be seen where lines turn orange after intersecting with a road. 
