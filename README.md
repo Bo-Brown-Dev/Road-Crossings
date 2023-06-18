@@ -156,9 +156,12 @@ of crossing points, which can be seen where lines turn orange after intersecting
 
  **These points are inferences, not observations.** 
 <br></br>
-  Validating that a road was crossable for the subject animal is a good idea. A trajectory may cross a road, but that doesn't mean that
-the animal was ever recorded to be in this location. The animal could go around the road, under the road, and over the 
-road. Using the attributes provided by OSM may help to identify how likely it is that a crossing point is valid.
+  If you do not wish to introruce inferential data to your dataset, care should be taken to either validate or remove crossing points. 
+Validating that a road was crossable for the subject animal is a good idea. The data can be removed by filtering out points where "crossing_point?" 
+attribute is True. If validating the data, keep in mind that a trajectory may cross a road, but that doesn't mean that
+the animal was ever recorded to be in this location. Use tracker accuracy and proximity of observations to determine which crossing points are valid. 
+Note also that the animal could go around the road, under the road, and over the 
+road. Using the attributes provided by OSM may help to identify how likely it is that a crossing point is valid in these cases.
 It is also possible that inaccurate gps data indicates that an animal has crossed the road when they simply approached a
 road but turned back before crossings it.
 <br></br>
