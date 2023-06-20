@@ -58,10 +58,12 @@ class App(object):
 
 
         # Creating map with the following layers:
-        self.createMap(self,
+        m = self.createMap(self,
             self.get_tracks(self, data),
             OSM_roads,
             crossing_points)
+
+        m.save(moveapps_io.create_artifacts_file('Crossings_Map.html'))
 
 
         # saving map to artefacts
@@ -211,7 +213,6 @@ class App(object):
                               name='crossings')
 
         folium.LayerControl().add_to(m)
-        m.save(self.moveapps_io.create_artifacts_file('Crossings_Map.html'))
 
         return m
 
@@ -248,8 +249,8 @@ class App(object):
 
         track_points['crossing_point'] = False
 
-        track_points = track_points.to_crs(self.common_crs)
-        crossings = crossings.to_crs(self.common_crs)
+        track_points = track_points.to_crs(App.common_crs)
+        crossings = crossings.to_crs(App.common_crs)
 
         new_points = pd.concat([track_points, crossings])
 

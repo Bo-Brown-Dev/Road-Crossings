@@ -21,10 +21,7 @@ from html.parser import HTMLParser
 
 class TestApp(unittest.TestCase):
 
-
-
     def setUp(self) -> None:
-
         os.environ['APP_ARTIFACTS_DIR'] = os.path.join(ROOT_DIR, r'tests/resources/output')
         self.sut = App(moveapps_io=MoveAppsIo())
 
@@ -46,12 +43,11 @@ class TestApp(unittest.TestCase):
                          )
         )
 
-        ox.settings.use_cache=False
+        ox.settings.use_cache = False
 
-        #self.expected_buffer = pd.read_pickle(
+        # self.expected_buffer = pd.read_pickle(
         #  os.path.join(ROOT_DIR, r'tests/resources/local_app_files/provided_only/provided-app-files/buffers_gabs_23.pickle'
         #               ))
-
 
         self.expected_crossings = pd.read_pickle(
             os.path.join(ROOT_DIR,
@@ -71,23 +67,20 @@ class TestApp(unittest.TestCase):
                          )
         )
 
-
-
     """
     Because the alternate method for acquiring roads uses a different buffer method, using the same buffer
     and checking for an exact match would result in a brittle test that would be subject to a change in a node or edge
     at the edge of the buffer. 
-    
+
     Instead, we query our baseline roads by a larger buffer and check that our function is contained by the set.
-    
-    
-    
-    
+
+
+
+
     """
 
     def test_getRoads(self):
-
-        """    
+        """
         Expected:
         As a baseline to test the function,
         the test below uses an alternative method to get roads within 1500 meters of the OSM geocoded loc of the White House
@@ -110,7 +103,7 @@ class TestApp(unittest.TestCase):
         Actual:
         We query a shapely polygon representation of the White House from the OpenStreetMap geocoded place.
         We take all roads within 1000 meters of any point in the White House polygon.
-        
+
         """
 
         white_house = ox.geocode_to_gdf('W238241022', by_osmid=True,
@@ -123,7 +116,7 @@ class TestApp(unittest.TestCase):
         Comparison:
         Finally, we compare the actual dataframe to the expected dataframe using an inner merge. if the length of the
         dataframe does not change after merging, then we have a 1 to 1 match on osmid and geometry, which is a pass.
-        
+
         """
 
         OSMnx_check = pd.merge(actual, expected, on=('osmid', 'geometry'), how='inner', indicator=True)
@@ -131,13 +124,16 @@ class TestApp(unittest.TestCase):
         self.assertEqual(len(actual), len(OSMnx_check))
 
     def test_findCrossings(self):
-        roads = pd.read_pickle(os.path.join(ROOT_DIR, r'tests/resources/local_app_files/provided_only/provided-app-files/roads_gabs_23.pickle'))
-        tracks = pd.read_pickle(os.path.join(ROOT_DIR, r'tests/resources/local_app_files/provided_only/provided-app-files/tracks_gabs_23.pickle'))
+        roads = pd.read_pickle(os.path.join(ROOT_DIR,
+                                            r'tests/resources/local_app_files/provided_only/provided-app-files/roads_gabs_23.pickle'))
+        tracks = pd.read_pickle(os.path.join(ROOT_DIR,
+                                             r'tests/resources/local_app_files/provided_only/provided-app-files/tracks_gabs_23.pickle'))
         tracks = tracks.to_crs(roads.crs)
 
         actual = App.find_crossings(roads, tracks)
 
-        expected = pd.read_pickle(os.path.join(ROOT_DIR, r'tests/resources/local_app_files/provided_only/provided-app-files/crossings_gabs_23.pickle'))
+        expected = pd.read_pickle(os.path.join(ROOT_DIR,
+                                               r'tests/resources/local_app_files/provided_only/provided-app-files/crossings_gabs_23.pickle'))
 
         # checks that the count of the calculated df is equal to count of expected df
         self.assertCountEqual(actual, expected)
@@ -146,8 +142,6 @@ class TestApp(unittest.TestCase):
         self.assertTrue(actual.geometry.eq(expected.geometry).all())
 
     def test_insertCrossings(self):
-
-        # todo: This test is failing when an animal crosses two roads in a single segment.
         # I need to sort the values of the dataframe by the OSM ID, so I need to add the OSMID when I find the crossings
 
         expected_points_output = self.expected_output.to_point_gdf()
@@ -157,14 +151,10 @@ class TestApp(unittest.TestCase):
                                      App.get_points(self, self.case_input),
                                      self.expected_crossings,
                                      self.case_input
-        )
+                                     )
 
-        actual_points = actual.to_point_gdf().sort_values(['osmid', 'timestamps'])
+        actual_points = actual.to_point_gdf()
         actual_lines = App.get_tracks(self, actual)
-
-        comparison = actual_points.sort_values(['osmid', 'timestamps']).compare(
-            expected_points_output[actual_points.columns].to_crs(actual.trajectories[0].crs).sort_values(['osmid', 'timestamps']),
-            align_axis=0,)
 
         self.assertTrue(
             expected_points_output.geometry.eq(actual_points.geometry).all()
@@ -175,7 +165,7 @@ class TestApp(unittest.TestCase):
         )
 
     def test_CreateMap(self):
-        m = App.createMap(self.expected_lines, self.given_roads, self.expected_crossings)
+        m = App.createMap(App, self.expected_lines, self.given_roads, self.expected_crossings)
 
         self.assertIsInstance(m, Map)
 
@@ -188,7 +178,6 @@ class TestApp(unittest.TestCase):
         )
 
     def test_createGeoPackage(self):
-
         self.sut.saveGeopackage(self.expected_lines, self.given_roads, self.expected_crossings)
 
         actual = gpd.read_file(
@@ -200,8 +189,6 @@ class TestApp(unittest.TestCase):
             r'tests/resources/local_app_files/provided_only/provided-app-files/geopackage_gabs_23.gpkg'))
 
         self.assertTrue(expected.geometry.eq(actual.geometry).all())
-
-
 
 
 if __name__ == '__main__':
