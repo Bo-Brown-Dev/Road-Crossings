@@ -63,7 +63,7 @@ class App(object):
             OSM_roads,
             crossing_points)
 
-        m.save(moveapps_io.create_artifacts_file('Crossings_Map.html'))
+        m.save(self.moveapps_io.create_artifacts_file('Crossings_Map.html'))
 
 
         # saving map to artefacts
