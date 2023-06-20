@@ -28,6 +28,7 @@ class App(object):
 
         ox.settings.use_cache = False
 
+
         tracemalloc.start()
 
         logging.info('\n-_-_-_-_-_- Road Crossings -_-_-_-_-_- \n'
@@ -92,15 +93,11 @@ class App(object):
     @staticmethod
     def get_tracks(self, data) -> GeoDataFrame:
 
-        dtype_conversion = {'prev_t': str, 't': str, 'timestamps': str}
+        dtype_conversion = {'prev_t': str, 't': str,}
 
         return data.to_line_gdf()[
             ['event.id',
-            'deployment.id',
-            'tag.id',
             'trackId',
-            'individual.id',
-            'timestamps',
             't',
             'prev_t',
             'geometry'
@@ -114,10 +111,6 @@ class App(object):
         return data.to_point_gdf()[
             ['event.id',
              'trackId',
-             'deployment.id',
-             'tag.id',
-             'individual.id',
-             'timestamps',
              'geometry'
              ]
         ].set_crs(data.trajectories[0].crs)
@@ -208,7 +201,7 @@ class App(object):
             color="black",
             name="roads")
 
-        m = crossings.astype({'mid_t': str, 'timestamps': str}).explore(m=m,  # points of road crossings
+        m = crossings.astype({'mid_t': str}).explore(m=m,  # points of road crossings
                               color='red',
                               name='crossings')
 
@@ -258,7 +251,9 @@ class App(object):
 
         new_points['merged_t'] = new_points['merged_t'].fillna(new_points.index.to_series()).astype('datetime64[ns]')
 
-        new_points = new_points.sort_values(by=['individual.id', 'merged_t'])
+        new_points = new_points.sort_values(by=['trackId', 'merged_t'])
+
+        new_points.merge(data.to_point_gdf(), how='left', on=['trackId', 'event.id', 'geometry'])
 
         new_collection = mpd.TrajectoryCollection(
             data=new_points,
