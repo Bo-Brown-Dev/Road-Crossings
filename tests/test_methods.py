@@ -74,9 +74,6 @@ class TestApp(unittest.TestCase):
 
     Instead, we query our baseline roads by a larger buffer and check that our function is contained by the set.
 
-
-
-
     """
 
     def test_getRoads(self):
