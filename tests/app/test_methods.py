@@ -105,7 +105,7 @@ class TestApp(unittest.TestCase):
         testTracks = self.expected_tracks
         testCrossings = find_crossings(self.expected_roads, testTracks)
 
-        assert_frame_equal(testCrossings, self.expected_crossings)
+        self.assertCountEqual(testCrossings, self.expected_crossings)
 
     def test_insertCrossing(self):
         testOutput = insert_crossings(self.expected_points, self.expected_crossings, self.case_input.trajectories[0])
