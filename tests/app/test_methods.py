@@ -16,7 +16,7 @@ from folium import Map
 class TestApp(unittest.TestCase):
 
     def setUp(self) -> None:
-        os.environ['APP_ARTIFACTS_DIR'] = os.path.join(ROOT_DIR, r'tests\resources\output')
+        os.environ['APP_ARTIFACTS_DIR'] = os.path.join(ROOT_DIR, r'tests/resources/output')
         self.sut = App(moveapps_io=MoveAppsIo())
 
         self.case_input = pd.read_pickle(
