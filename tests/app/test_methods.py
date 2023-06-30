@@ -21,26 +21,25 @@ class TestApp(unittest.TestCase):
 
         self.case_input = pd.read_pickle(
             os.path.join(ROOT_DIR,
-                         r'tests\resources\local_app_files\provided_only\provided-app-files\input1.pickle'
+                         r'tests/resources/local_app_files/provided_only/provided-app-files/input1.pickle'
                          ))
 
 
         self.expected_points = pd.read_pickle(
             os.path.join(ROOT_DIR,
-                         r'tests\resources\local_app_files\provided_only\provided-app-files\points_gabs_23.pickle'
+                         r'tests/resources/local_app_files/provided_only/provided-app-files/points_gabs_23.pickle'
                          )
         )
 
         self.expected_tracks = pd.read_pickle(
             os.path.join(ROOT_DIR,
-                         r'tests\resources\local_app_files\provided_only\provided-app-files\tracks_gabs_23.pickle'
+                         r'tests/resources/local_app_files/provided_only/provided-app-files/tracks_gabs_23.pickle'
                          )
         )
 
         ox.settings.use_cache = False
-
         self.expected_buffer = pd.read_pickle(
-        os.path.join(ROOT_DIR, r'tests\resources\local_app_files\provided_only\provided-app-files\buffers_gabs_23.pickle'
+        os.path.join(ROOT_DIR, r'tests/resources/local_app_files/provided_only/provided-app-files/buffers_gabs_23.pickle'
                    ))
 
         self.expected_roads = pd.read_pickle(
@@ -49,18 +48,18 @@ class TestApp(unittest.TestCase):
 
         self.expected_crossings = pd.read_pickle(
             os.path.join(ROOT_DIR,
-                         r'tests\resources\local_app_files\provided_only\provided-app-files\crossings_gabs_23.pickle'
+                         r'tests/resources/local_app_files/provided_only/provided-app-files/crossings_gabs_23.pickle'
 
         ))
 
         self.given_roads = pd.read_pickle(
             os.path.join(ROOT_DIR,
-                         r'tests\resources\local_app_files\provided_only\provided-app-files\roads_gabs_23.pickle'
+                         r'tests/resources/local_app_files/provided_only/provided-app-files/roads_gabs_23.pickle'
                          )
         )
         self.expected_output = pd.read_pickle(
             os.path.join(ROOT_DIR,
-                         r'tests\resources\local_app_files\provided_only\provided-app-files\TracksPostInsert_gabs_23.pickle'
+                         r'tests/resources/local_app_files/provided_only/provided-app-files/TracksPostInsert_gabs_23.pickle'
                          )
         )
 
