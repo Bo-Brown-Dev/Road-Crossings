@@ -45,7 +45,7 @@ Follow these steps, and you are ready to run the app.
 "artifacts" section below.*
 
 The resulting output of the app will be a TrajectoryCollection with points of Road Crossings inserted into the Lines 
-that make up each individual's Trajectory. The timestamps of these points is estimated as the mid-point of the Timestamps
+that make up each individual's Trajectory. The timestamps of each point is estimated as the mid-point of the Timestamps
 before and after the crossing.
 
 
@@ -98,7 +98,7 @@ animal's next location by timestamp.
 <br></br>
 
 * **Track Buffer:** A single geometry representing the area within a 1000-meter radius of any point on the LineStrings 
-in the Track Lines collection. The buffer creates a collection of Polygons which are all dissolved into a single Polygon.
+in the Track Lines dataframe. The buffer creates a collection of Polygons which are all dissolved into a single Polygon.
 This polygon is used later as the shape to query roads data from OpenStreetMap.
 
   *(See below for more info)*
