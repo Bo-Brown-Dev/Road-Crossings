@@ -5,6 +5,7 @@ from app.RoadCrossings import find_crossings, insert_crossings, memory_check
 import pandas as pd
 import geopandas as gpd
 from geopandas import GeoDataFrame
+import osmnx as ox
 import logging
 
 class App(object):
@@ -24,6 +25,8 @@ class App(object):
     @hook_impl
     def execute(self, data: TrajectoryCollection, config: dict) -> TrajectoryCollection:
         """Your app code goes here"""
+
+        ox.settings.use_cache = False
 
         buffer_gen = get_buffers(data)
 
