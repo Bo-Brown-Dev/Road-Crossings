@@ -27,6 +27,7 @@ class App(object):
         """Your app code goes here"""
 
         ox.settings.use_cache = False
+        ox.settings.log_console = True
 
         buffer_gen = get_buffers(data)
 
