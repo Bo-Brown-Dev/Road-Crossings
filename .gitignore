@@ -416,3 +416,5 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/python,r,intellij,macos,windows,visualstudiocode
+resources/local_app_files/uploaded-app-files/alberta-latest.osm.bz2
+resources/local_app_files/uploaded-app-files/alberta-latest.osm.pbf

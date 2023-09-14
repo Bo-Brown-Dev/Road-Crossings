@@ -7,6 +7,7 @@ import geopandas as gpd
 from geopandas import GeoDataFrame
 import osmnx as ox
 import logging
+from keplergl_cli import Visualize
 
 class App(object):
 
@@ -64,9 +65,10 @@ class App(object):
         m = create_map(
                 data,
                 roads,
-                crossings)
+                crossings,
+                map_path= self.map_path)
 
-        m.save(self.map_path)
+        m.render()
         # memory_check('map')
 
 
@@ -74,13 +76,14 @@ class App(object):
         self.save_geopackage(data,
                         roads,
                         crossings)
+        print(m.config)
 
         return TrajectoryCollection(new_trajectory_list)
 
     def save_geopackage(self, collection: GeoDataFrame, roads: GeoDataFrame, crossings: GeoDataFrame) -> None:
         logging.info('Writing to Geopackage')
 
-        dtype_conversion = {'prev_t': str, 't': str, }
+        dtype_conversion = {'prev_t': str, 't': str }
         tracks = collection.to_line_gdf()[
             ['event.id',
              'trackId',
@@ -108,8 +111,6 @@ class App(object):
             , layer='track_lines'
             , driver='GPKG'
         )
-
-
 
 
 

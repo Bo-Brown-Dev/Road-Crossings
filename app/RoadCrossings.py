@@ -1,4 +1,11 @@
+# python imports
+import logging
+import tracemalloc
+
+#internal imports
+from app.Crossings_Kepler import extract_line_coordinates, to_kepler_trip
 from sdk.moveapps_spec import hook_impl
+
 from movingpandas import TrajectoryCollection, Trajectory
 import pandas as pd
 import geopandas as gpd
@@ -6,12 +13,17 @@ from geopandas import GeoDataFrame, GeoSeries
 import movingpandas as mpd
 import osmnx as ox
 import shapely
+from keplergl_cli import Visualize
+import numpy as np
+import datetime
+import time
 from shapely.geometry import linestring, point, polygon
 import folium
 from folium import Map
 import sys
-import tracemalloc
-import logging
+
+
+import json
 
 
 
@@ -108,34 +120,32 @@ def find_crossings(roads, tracks):
     crossings['mid_t'] = (pd.to_datetime(crossings['prev_t']) + half_timestamp_range).astype('datetime64[ns]')
     return crossings
 
-def create_map(collection: TrajectoryCollection, roads: GeoDataFrame, crossings: GeoDataFrame) -> folium.Map:
+def create_map(collection: TrajectoryCollection, roads: GeoDataFrame, crossings: GeoDataFrame, map_path) -> folium.Map:
 
-    dtype_conversion = {'prev_t': str, 't': str, }
+    layer_names = []
+    layers = []
+    dtype_conversion = {'prev_t': str, 't': str, 'mid_t': str}
+    dtype_conversion2 = {'timestamps': str, 't': str, 'prev_t': str, 'timestamp.start': str, 'timestamp.end': str}
+    crossings['longitude'] = crossings.geometry.x
+    crossings['latitude'] = crossings.geometry.y
 
-    tracks = get_tracks(collection)
+    layers.append(crossings.astype(dtype_conversion))
+    layer_names.append('crossings')
+
+    layer_names.append('tracks')
+    layers.append(extract_line_coordinates(collection.to_line_gdf()).astype(dtype_conversion2))
+
+    layers.append(roads)
+    layer_names.append('roads')
+                                                 #n.index.astype('int64') k.index.values.astype(np.int64)
+        #tracks = tracks.astype(dtype_conversion2)
+        #tracks.index = tracks.index.map(str)
+
+        #tracks = tracks.to_json()
 
     logging.info('---- Creating Map ----')
-    m=folium.Map()
+    m = Visualize(file_loc = map_path, data=layers, names=layer_names, api_key='pk.eyJ1IjoiYm9icm93bi1kZXYiLCJhIjoiY2xqb2Y3d3NuMDd3eDNncDdqb2poeGJvbyJ9.LiNyYitzwQpOhSxZRXQt1g')
 
-    for trajectory in collection:
-       track = next(tracks)
-
-       m = track.explore( m=m,
-                          name = trajectory.id,
-                          color='darkcyan')  # Animal Movement
-
-    m = roads.explore(  # Roads
-        m=m,
-        color="black",
-        name="roads")
-
-    m = crossings.astype({'mid_t': str, 't': str}).explore(m=m,  # points of road crossings
-                          color='red',
-                          name='crossings')
-
-
-
-    folium.LayerControl().add_to(m)
 
     return m
 
@@ -174,3 +184,11 @@ def memory_check(checkpoint: str):
     logging.debug('%s Checkpoint ---- Memory Stats:', checkpoint)
     logging.debug('\t %s size: %s Mb', checkpoint, size / 1000000)
     logging.debug('\t %s peak: %s Mb', checkpoint, peak / 1000000)
+
+
+
+
+
+
+
+
