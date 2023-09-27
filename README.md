@@ -60,8 +60,8 @@ The point will have the attributes of the road that was crossed and the individu
 The timestamp for this crossing is not knowable, but is estimated as halfway between the start timestamp and end 
 timestamp of that line at 6:30 PM. 
 
-**Note that for a TrajectoryCollection to be output, the timestamp must be estimated to preserve the order of movement 
-in the resulting dataset. This data can be easily filtered out using the True / False "CrossingPoint?" column.*
+**Note that for the app to include crossing points in the output, the timestamp must be estimated to preserve the order of movement 
+in the resulting dataset. This is handled by the app, and the inferential data is included. This data can be easily filtered out using the True / False "CrossingPoint?" column.*
 
 ### User Guide & Reference
 
@@ -156,14 +156,14 @@ of crossing points, which can be seen where lines turn orange after intersecting
 
  **These points are inferences, not observations.** 
 <br></br>
-  If you do not wish to introruce inferential data to your dataset, care should be taken to either validate or remove crossing points. 
-Validating that a road was crossable for the subject animal is a good idea. The data can be removed by filtering out points where "crossing_point?" 
+  If you do not wish to introduce inferential data to your dataset, care should be taken to either validate or remove crossing points. 
+Validating that a road was able to be crossed for the subject animal is a good idea. The data can be removed by filtering out points where "crossing_point?" 
 attribute is True. If validating the data, keep in mind that a trajectory may cross a road, but that doesn't mean that
 the animal was ever recorded to be in this location. Use tracker accuracy and proximity of observations to determine which crossing points are valid. 
 Note also that the animal could go around the road, under the road, and over the 
 road. Using the attributes provided by OSM may help to identify how likely it is that a crossing point is valid in these cases.
 It is also possible that inaccurate gps data indicates that an animal has crossed the road when they simply approached a
-road but turned back before crossings it.
+road but turned back before crossing it.
 <br></br>
 
 ## I/O Dictionary
@@ -210,9 +210,9 @@ Be sure to submit requests to the github!
 
 **Out Of Memory Errors**
 The app can quickly run out of memory when processing datasets larger than 3-7 MB.
-The app will not log an error and will sometimes appear "idle". 
-Please try to filter your data to less than 5MB for the time being. 
-A solution to optimize memory use and prevent OOM errors is in development.
+The app will not log an error and will sometimes appear "idle". This seems to happen most often with 
+animal tracking data that spans a wide geographic range. It may be a good idea to filter down data to a small geographic
+location.
 
 **Unexpected Data Handling:** 
 
