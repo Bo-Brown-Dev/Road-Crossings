@@ -82,7 +82,7 @@ class App(object):
 
         dtype_conversion = {'prev_t': str, 't': str, }
         tracks = collection.to_line_gdf()[
-            ['event.id',
+            ['timestamps',
              'trackId',
              't',
              'prev_t',

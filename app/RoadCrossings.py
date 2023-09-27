@@ -19,12 +19,12 @@ import logging
 
 def get_tracks(data) -> GeoDataFrame:
 
-    dtype_conversion = {'prev_t': str, 't': str, }
+    dtype_conversion = {'prev_t': str, 't': str, 'timestamps': str}
 
     logging.info('getting tracks')
     for track in data:
         yield track.to_line_gdf()[
-        ['event.id',
+        ['timestamps',
          'trackId',
          't',
          'prev_t',
@@ -39,7 +39,7 @@ def get_points(data) -> GeoDataFrame:
     logging.info('getting points')
     for track in data:
         yield track.to_point_gdf()[
-        ['event.id',
+        ['timestamps',
          'trackId',
          'geometry'
          ]
@@ -97,7 +97,7 @@ def find_crossings(roads, tracks):
 
     crossings.geometry = crossings.geometry.apply(
         lambda x: shapely.geometry.MultiPoint(list(x.coords)))
-    crossings = crossings.explode(index_parts=True).drop_duplicates(subset=['event.id', 'osmid',])
+    crossings = crossings.explode(index_parts=True).drop_duplicates(subset=['t', 'osmid',])
 
     logging.info('\t Calculating timestamp midpoints')
 
@@ -160,7 +160,7 @@ def insert_crossings(track_points: GeoDataFrame, crossings: GeoDataFrame, track:
 
     new_points = new_points.sort_values(by=['trackId', 'merged_t'])
 
-    new_points.merge(track.to_point_gdf(), how='left', on=['trackId', 'event.id'])
+    new_points.merge(track.to_point_gdf(), how='left', left_on=['trackId', 'merged_t'], right_on=['trackId', 'timestamps'])
 
     trajectory_with_crossings = mpd.Trajectory(df=new_points, traj_id=track.id, t='merged_t')
 
