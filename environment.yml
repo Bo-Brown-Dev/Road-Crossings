@@ -9,3 +9,4 @@ dependencies:
   - pluggy
   - python-dotenv
   - osmnx=1.5.1
+  - keplergl

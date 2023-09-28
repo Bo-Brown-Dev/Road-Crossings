@@ -1,17 +1,18 @@
-from sdk.moveapps_spec import hook_impl
+from keplergl import KeplerGl
 from movingpandas import TrajectoryCollection, Trajectory
+from geopandas import GeoDataFrame, GeoSeries
 import pandas as pd
 import geopandas as gpd
-from geopandas import GeoDataFrame, GeoSeries
 import movingpandas as mpd
 import osmnx as ox
 import shapely
-from shapely.geometry import linestring, point, polygon
-import folium
-from folium import Map
-import sys
+
 import tracemalloc
 import logging
+import json
+import os
+
+from app.Crossings_Kepler import extract_line_coordinates
 
 
 
@@ -108,34 +109,28 @@ def find_crossings(roads, tracks):
     crossings['mid_t'] = (pd.to_datetime(crossings['prev_t']) + half_timestamp_range).astype('datetime64[ns]')
     return crossings
 
-def create_map(collection: TrajectoryCollection, roads: GeoDataFrame, crossings: GeoDataFrame) -> folium.Map:
+def create_map(collection: TrajectoryCollection, roads: GeoDataFrame, crossings: GeoDataFrame) -> KeplerGl:
 
-    dtype_conversion = {'prev_t': str, 't': str, }
+    crossings['longitude'] = crossings.geometry.x
+    crossings['latitude'] = crossings.geometry.y
 
-    tracks = get_tracks(collection)
+    # converting datetime to string, prevents json error
+    dtype_conversion = {'prev_t': str, 't': str, 'timestamps': str}
+
+    local_app_files_root = os.environ.get('LOCAL_APP_FILES_DIR', './resources/local_app_files')
+    with open(os.path.join(local_app_files_root, 'provided-app-files/kepler_config.json'), 'r') as kepler_config_json:
+        kepler_config = json.load(kepler_config_json)
 
     logging.info('---- Creating Map ----')
-    m=folium.Map()
+    m = KeplerGl(
+        data = {
+            'Tracks': extract_line_coordinates(collection.to_line_gdf().astype(dtype_conversion)),
+            'Roads': roads,
+            'Crossing_Points': crossings.astype(dtype_conversion).astype({'mid_t': str})
+            },
+        )
 
-    for trajectory in collection:
-       track = next(tracks)
-
-       m = track.explore( m=m,
-                          name = trajectory.id,
-                          color='darkcyan')  # Animal Movement
-
-    m = roads.explore(  # Roads
-        m=m,
-        color="black",
-        name="roads")
-
-    m = crossings.astype({'mid_t': str, 't': str}).explore(m=m,  # points of road crossings
-                          color='red',
-                          name='crossings')
-
-
-
-    folium.LayerControl().add_to(m)
+    m.config = kepler_config
 
     return m
 

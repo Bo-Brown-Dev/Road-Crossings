@@ -66,7 +66,12 @@ class App(object):
                 roads,
                 crossings)
 
-        m.save(self.map_path)
+
+        m.show()
+
+        print(m.config)
+
+        m.save_to_html(data = None, file_name=self.map_path)
         # memory_check('map')
 
 
