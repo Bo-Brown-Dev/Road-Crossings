@@ -10,7 +10,7 @@ from shapely.geometry import Polygon
 import os
 import pandas as pd
 import osmnx as ox
-from folium import Map
+from keplergl import KeplerGl
 
 
 class TestApp(unittest.TestCase):
@@ -121,7 +121,7 @@ class TestApp(unittest.TestCase):
         data = self.case_input
         m = create_map(data, roads, crossings)
 
-        self.assertIsInstance(m, Map)
+        self.assertIsInstance(m, KeplerGl)
 
 
     def test_writeGeopackage(self):
