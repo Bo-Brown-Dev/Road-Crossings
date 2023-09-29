@@ -1,5 +1,7 @@
+import osmnx._errors
+
 from sdk.moveapps_spec import hook_impl
-from movingpandas import TrajectoryCollection
+from movingpandas import TrajectoryCollection, Trajectory
 from app.RoadCrossings import get_roads, get_points, get_tracks, get_buffers, create_map
 from app.RoadCrossings import find_crossings, insert_crossings, memory_check
 import pandas as pd
@@ -46,7 +48,15 @@ class App(object):
 
             tracks = next(tracks_gen)
 
-            roads = pd.concat([get_roads(next(buffer_gen)), roads]).drop_duplicates()
+            try :roads = pd.concat([get_roads(next(buffer_gen)), roads]).drop_duplicates()
+
+            except osmnx._errors.EmptyOverpassResponse:
+                individual_id = tracks.trackId[0]
+                logging.info(f"Overpass couldn't find any roads near tracks for individual with ID: {individual_id}")
+                new_trajectory_list.append(
+                    Trajectory(df = next(track_points), traj_id = individual_id, t='t')
+                )
+                continue
 
             traj_crossings = find_crossings(roads, tracks)
 
@@ -66,12 +76,8 @@ class App(object):
                 roads,
                 crossings)
 
+        m.save_to_html(data = None, file_name=self.map_path, center_map=True)
 
-        m.show()
-
-        print(m.config)
-
-        m.save_to_html(data = None, file_name=self.map_path)
         # memory_check('map')
 
 
