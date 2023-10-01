@@ -13,14 +13,14 @@ crossed a road. Map data is queried from OpenStreetMap and available  for the en
 
 ## Documentation
 Road Crossings is an app that takes animal movement data in the form of a movingpandas TrajectoryCollection and 
-synthesizes data on where and when animals crossed a road.
+synthesizes data on where and when animals likely crossed a road.
 
 ### Quick Start Guide
 
 #### Setup:
 
 While the analysis is flexible in terms of scope and can take input data from anywhere in the world, it also 
-intentionally performs some complex geospatial operations that can cause the app to run slower with large datasets. 
+intentionally performs some memory-intensive geospatial operations that can cause the app to run slower or shut down unexpectedly with large datasets. 
 This is especially true for datasets that span greater distances or are centered in urban areas with a lot of roads. 
 Follow the steps below if experiencing slow performance within a work-flow.
 
@@ -29,20 +29,26 @@ Follow the steps below if experiencing slow performance within a work-flow.
   for as many animals as possible within one region at a time will result in the most efficient workflow. 
   This will always improve performance but should only be necessary when working with very large datasets.
 
+  There is an app for filtering by bounding box on MoveBank:
+  [Click Here](https://www.moveapps.org/apps/browser/afa3c727-39d2-4738-88a6-177634505c18)
+
 - #### Remove unused or blank columns:
   When a crossing is found, the app associates the Animal Tracking data with attributes from the road that was crossed.
-  Removing columns will greatly reduce clutter when interpreting the resulting dataset and help the app to run faster.
+  Removing columns will greatly reduce clutter when interpreting the resulting dataset and help the app to run more efficiently.
+
+  This can be done in the starting MoveBank app, or later if in a larger workflow.
 
 - #### Convert your data to TrajectoryCollection:
     The app accepts input strictly in the form of a movingpandas TrajectoryCollection. To make sure your data is in the 
-proper format, it is recommended that you get the data via a workflow in the proper format or convert it using the 
-MoveBank app for that purpose.
+    proper format, it is recommended that you get the data via a workflow in the proper format or convert it using the 
+    MoveBank app for that purpose.
+
+    MoveStack to TrajectoryCollection: [Click Here](https://www.moveapps.org/apps/browser/28c48bf4-687c-4e34-aa58-5c78958a3d36)
 
 Follow these steps, and you are ready to run the app.
 
-#### Results:
-**for information on artifacts available for download, scroll down to see the 
-"artifacts" section below.*
+#### Results: 
+**Inferential Data Inserted*
 
 The resulting output of the app will be a TrajectoryCollection with points of Road Crossings inserted into the Lines 
 that make up each individual's Trajectory. The timestamps of each point is estimated as the mid-point of the Timestamps
@@ -60,9 +66,12 @@ The point will have the attributes of the road that was crossed and the individu
 The timestamp for this crossing is not knowable, but is estimated as halfway between the start timestamp and end 
 timestamp of that line at 6:30 PM. 
 
-**Note that for the app to include crossing points in the output, the timestamp must be estimated to preserve the order of movement 
-in the resulting dataset. This is handled by the app, and the inferential data is included. This data can be easily filtered out using the True / False "CrossingPoint?" column.*
 
+**Note that the timestamps of crossing points must be estimated to preserve the order of movement 
+in the resulting dataset. This is handled by the app, and the inferential time and location is included in the output. This data can be easily filtered out by removing points where the "CrossingPoint?" column is "True".*
+
+**for information on artifacts available for download, scroll down to see the 
+"artifacts" section below.*
 ### User Guide & Reference
 
 #### Roads Data:
@@ -78,7 +87,10 @@ by the OSMnx library. Note the following features:
   * speed limit
   * width
   * access (private or public)
-* More info on any given road or it's surroundings can be found via OpenStreetMap using the osmID
+ 
+    
+To see definitions of these attributes please see the wiki linked here:
+https://wiki.openstreetmap.org/wiki/Key:highway
 
 #### Animal Movement Data:
 For animal movement data, the app accepts strictly the output of a preceding app in the format of a movingpandas
@@ -91,61 +103,68 @@ The TrajectoryCollection is broken into three dataframes:
 
 * **Track Lines:** A collection of LineStrings made by connecting each point from the Track Points collection to the associated
 animal's next location by timestamp.
-  ![Tracks Only Reference](https://github.com/Bo-Brown-Dev/Road-Crossings/assets/116322660/886f4204-074d-413c-9f77-760c29b28a47)
+
+
+  ![Tracks Only Reference](https://github.com/Bo-Brown-Dev/Road-Crossings/blob/5921fcba8a56c052e3dc7ae3573ef6da43331901/documentation/tracks_pre_mcp.png)
 
 
 <br></br>
 <br></br>
 
-* **Track Buffer:** A single geometry representing the area within a 1000-meter radius of any point on the LineStrings 
-in the Track Lines dataframe. The buffer creates a collection of Polygons which are all dissolved into a single Polygon.
-This polygon is used later as the shape to query roads data from OpenStreetMap.
+* **Track MCP:** The smallest convex polygon that contains all line segments within a given animal's tracks
+in the Track Lines dataframe.
 
-  *(See below for more info)*
-![Tracks With Buffers Reference](https://github.com/Bo-Brown-Dev/Road-Crossings/assets/116322660/6d59bb8d-4925-49a1-8c82-e54f72de9b96)
+ 
+![Tracks With MCP Reference](https://github.com/Bo-Brown-Dev/Road-Crossings/blob/5921fcba8a56c052e3dc7ae3573ef6da43331901/documentation/tracks%20with%20mcp.png)
 
-  ![Uploading Tracks With Buffers Reference.png…]()
+*(See below for more info)*
 
 <br></br>
 <br></br>
 
 * **Retrieving roads from OSM:** The polygon is then used in a request to the Overpass API as a bounding polygon.
-The app only selects roads from within the polygon, which greatly reduces the processing power needed to ingest and 
-analyze the roads data. Since the polygon is 1000 meters from any point on our tracking lines, the API returns all roads within 1 kilometer of 
-our tracking data.
+The app only selects roads from within the polygon.
 
-  ![Roads within Buffers Reference](https://github.com/Bo-Brown-Dev/Road-Crossings/assets/116322660/68d7bc26-efcd-46ca-8546-016da6755bd6)
+  ![Roads within Buffers Reference](https://github.com/Bo-Brown-Dev/Road-Crossings/blob/5921fcba8a56c052e3dc7ae3573ef6da43331901/documentation/roads%20with%20mcp.png)
 
   
-  *the polygon in this figure is the Track Buffer created in the previous step. The black lines show the full extent of
+  *the polygon in this figure is the Track Buffer created in the previous step. The orange lines show the full extent of
  the roads data that was ingested*
 <br></br>
 <br></br>
 
 ### Function & Behavior Guide
 
-* **Crossings Analysis:** The resulting roads and the Track Lines are overlayed on one another, and the intersection is
-taken from this overlay. Attributes from both datasets are retained. Also note that an animal track with a line segment 
-that happens to follow the exact path of a road will appear as 2 crossing points at either end of the line segment.
-  ![Tracks with Roads and Crossings Reference](https://github.com/Bo-Brown-Dev/Road-Crossings/assets/116322660/c46bb398-2518-409d-89e3-5151f3024fcf)
+**Crossings Analysis:** 
+The resulting roads and the Track Lines are overlayed on one another, and the intersection is
+taken from this overlay. Attributes from both datasets are retained.
+
+Also note the following:
+* an animal track with a line segment that happens to follow the exact path of a road will appear as 2 crossing points at either end of the line segment.
+* an animal track that crosses the exact point of an intersection of 2 or more roads will always appear as a single crossing point
+
+![Tracks with Roads and Crossings Reference](https://github.com/Bo-Brown-Dev/Road-Crossings/assets/116322660/c46bb398-2518-409d-89e3-5151f3024fcf)
+  
 
 <br></br>
 <br></br>
 
-* **Inserting Crossings to Trajectories:** The crossing points are inserted into the TrajectoryCollection such that
-points where the road is crossed are added to the Trajectory of the animal. Since trajectories are sequenced by the
-timestamps of the points within the Trajectory, the timestamp of crossing points is estimated to be halfway between 
-the timestamp of the starting point and the timestamp of the ending point for that segment of the Trajectory. The result
-is that LineStrings (segments) which crossed a road are split into two LineStrings, one before the road was crossed and 
-one after. There are some important considerations when using this data which are covered in the next section. 
+**Inserting Crossings to Trajectories:**
+* The crossing points are inserted into the path of the animal as though they're normal points in their tracking data.
+  Since trajectories are sequenced by the timestamps of the points within the Trajectory, the timestamp of crossing points is estimated to be halfway between
+  the timestamps of the starting point and ending point for that line segment. The result is that LineStrings (segments) which crossed a road are
+  split into two LineStrings, one before the road was crossed and one after.
+
+  There are some important considerations when using this data which are covered in the next section. 
 <br></br>
-  **Let's look at an example of the change between the input TrajectoryCollection and the output TrajectoryCollection:**
+  **Example of change between input and output:**
 <br></br>
   The input is shown below mapped entirely in blue. The TrajectoryCollection contains only one Trajectory. 
 The points in the trajectory are shown as circles and the Trajectory is the set of lines that connects all these points. The segments of
 the Trajectory are the smaller lines that connect each pair of points. Roads are represented by black lines
 <br></br>
-  ![Before Insert Ref](https://github.com/Bo-Brown-Dev/Road-Crossings/assets/116322660/042b527b-12f5-4787-b48c-07d26da6b611)
+
+![Before Insert Ref](https://github.com/Bo-Brown-Dev/Road-Crossings/assets/116322660/042b527b-12f5-4787-b48c-07d26da6b611)
 
 <br></br>
 The output is mapped below. New points inserted as crossing points are shown in red. Segments are split at the location
@@ -156,14 +175,23 @@ of crossing points, which can be seen where lines turn orange after intersecting
 
  **These points are inferences, not observations.** 
 <br></br>
-  If you do not wish to introduce inferential data to your dataset, care should be taken to either validate or remove crossing points. 
-Validating that a road was able to be crossed for the subject animal is a good idea. The data can be removed by filtering out points where "crossing_point?" 
-attribute is True. If validating the data, keep in mind that a trajectory may cross a road, but that doesn't mean that
-the animal was ever recorded to be in this location. Use tracker accuracy and proximity of observations to determine which crossing points are valid. 
-Note also that the animal could go around the road, under the road, and over the 
-road. Using the attributes provided by OSM may help to identify how likely it is that a crossing point is valid in these cases.
-It is also possible that inaccurate gps data indicates that an animal has crossed the road when they simply approached a
-road but turned back before crossing it.
+  If you do not wish to introduce inferential data to your dataset, care should be taken to either validate or remove crossing points.
+  
+  
+  **Validating Crossings:**
+  
+  Validating that a road was able to be crossed for the subject animal is a good idea. If validating the data, keep in mind that a trajectory may cross a road, but that doesn't mean that
+  the animal was ever recorded to be in this location. Use tracker accuracy and proximity of recorded observations to determine which crossing points are valid. 
+  Note also that the animal could go around the road, under the road, and over the road. It is also possible that inaccurate gps data indicates that an animal has crossed the road when they 
+  simply approached a road but turned back before crossing it. Using the attributes provided by OSM may help to identify how likely it 
+  is that a crossing point is valid in these cases.
+
+**Removing Crossings from the dataset:**
+
+
+  The data can be removed by converting the Trajectory to a DataFrame (table), and filtering out points where the "crossing_point?" 
+  attribute is True.
+
 <br></br>
 
 ## I/O Dictionary
