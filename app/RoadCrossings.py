@@ -179,6 +179,14 @@ def create_map(collection: TrajectoryCollection, roads: GeoDataFrame, crossings:
 
 
 def insert_crossings(track_points: GeoDataFrame, crossings: GeoDataFrame, track: Trajectory) -> Trajectory:
+    """
+    Inserts crossing points to Trajectories of animal tracking data
+
+    :param track_points: -- A GeoDataFrame with geometry of type Point
+    :param crossings: -- A GeoDataFrame of inferential road crossings with geometry of type Point
+    :param track: -- A source MovingPandas Trajectory
+    :return:  -- A MovingPandas Trajectory with crossing points inserted
+    """
 
     common_crs = 4326
 
