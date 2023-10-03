@@ -19,6 +19,13 @@ from app.Crossings_Kepler import extract_line_coordinates
 
 
 def get_tracks(data) -> GeoDataFrame:
+    """
+    A generator used to retrieve LineString GeoDataFrame
+    from TrajectoryCollection in a memory efficient way
+
+    :param data: -- A MovingPandas TrajectoryCollection
+    :return: -- iterable generator of GeoDataFrames with geometry of type LineString
+    """
 
     dtype_conversion = {'prev_t': str, 't': str, 'timestamps': str}
 
@@ -36,6 +43,14 @@ def get_tracks(data) -> GeoDataFrame:
         ).set_crs(track.crs)
 
 def get_points(data) -> GeoDataFrame:
+    """
+     A generator used to retrieve Point GeoDataFrame
+    from TrajectoryCollection in a memory efficient way
+
+    :param data: -- A MovingPandas TrajectoryCollection
+    :return: -- iterable generator of GeoDataFrames with geometry of type Point
+
+    """
 
     logging.info('getting points')
     for track in data:
@@ -46,7 +61,13 @@ def get_points(data) -> GeoDataFrame:
          ]
         ].set_crs(data.trajectories[0].crs)
 
-def get_buffers(data):
+def get_buffers(data: TrajectoryCollection):
+    """
+    Function returns a generator is used to generate minimum concave polygons in a memory efficient way
+
+    :param data: -- A  movingpandas TrajectoryCollection
+    :return: -- Shapely Polygon or MultiPolygon
+    """
     logging.info('---- Getting Convex Hull ----')
     for track in data:
         logging.info('getting track as line gdf')
@@ -55,13 +76,19 @@ def get_buffers(data):
         line = GeoSeries(gpd.tools.collect(line.geometry), crs=4326)
 
         logging.info('getting convex hull polygon')
-        hull = line.concave_hull[0]
+        hull = line.concave_hull()[0]
         logging.info('Got buffer')
         yield hull
 
 
 
-def get_roads(buffers: GeoDataFrame):
+def get_roads(buffers: shapely.Polygon):
+    """
+    Queries roads from OpenStreetMap via Overpass using OSMnx
+
+    :param buffers: -- Polygon used to narrow the query
+    :return: -- A GeoDataFrame of Roads
+    """
     logging.info('---- Querying roads within buffer ----')
 
     graph = ox.graph_from_polygon(
@@ -81,6 +108,13 @@ def get_roads(buffers: GeoDataFrame):
     return roads
 
 def find_crossings(roads, tracks):
+    """
+    Finds locations where MovingPandas Trajectory intersects with a GeoDataFrame of roads
+
+    :param roads: -- A GeoDataFrame of roads, geometry should be LineString
+    :param tracks: -- The result of a MovingPandas Trajectory to_line_gdf()
+    :return:  -- A GeoDataFrame of points where animal paths crossed the road
+    """
 
     common_crs = 4326
     logging.info('---- Finding Crossing Points ----')
@@ -110,6 +144,14 @@ def find_crossings(roads, tracks):
     return crossings
 
 def create_map(collection: TrajectoryCollection, roads: GeoDataFrame, crossings: GeoDataFrame) -> KeplerGl:
+    """
+    Creates an interactive map to visualize the animal paths, roads, and crossings
+
+    :param collection: -- the source TrajectoryCollection
+    :param roads: -- A GeoDataFrame of roads, geometry should be LineString
+    :param crossings: -- A GeoDataFrame of points where animal paths crossed the road
+    :return: -- A keplergl map object
+    """
 
     crossings['longitude'] = crossings.geometry.x
     crossings['latitude'] = crossings.geometry.y
