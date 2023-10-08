@@ -117,8 +117,8 @@ def create_map(collection: TrajectoryCollection, roads: GeoDataFrame, crossings:
     # converting datetime to string, prevents json error
     dtype_conversion = {'prev_t': str, 't': str, 'timestamps': str}
 
-    local_app_files_root = os.environ.get('LOCAL_APP_FILES_DIR', './resources/local_app_files')
-    with open(os.path.join(local_app_files_root, 'provided-app-files/kepler_config.json'), 'r') as kepler_config_json:
+    #local_app_files_root = os.path.
+    with open(os.path.join('./app/kepler_config.json'), 'r') as kepler_config_json:
         kepler_config = json.load(kepler_config_json)
 
     logging.info('---- Creating Map ----')
