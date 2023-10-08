@@ -138,7 +138,7 @@
             "visConfig": {
               "opacity": 0.8,
               "strokeOpacity": 0.8,
-              "thickness": 0.5,
+              "thickness": 1,
               "strokeColor": [115, 65, 15],
               "colorRange": {
                 "name": "Global Warming",
@@ -167,7 +167,7 @@
                 ]
               },
               "radius": 10,
-              "sizeRange": [0, 6],
+              "sizeRange": [0.5, 6],
               "radiusRange": [0, 50],
               "heightRange": [0, 500],
               "elevationScale": 5,
@@ -194,7 +194,7 @@
             "colorScale": "quantile",
             "strokeColorField": null,
             "strokeColorScale": "quantile",
-            "sizeField": { "name": "highway", "type": "string" },
+            "sizeField": null,
             "sizeScale": "point",
             "heightField": null,
             "heightScale": "linear",

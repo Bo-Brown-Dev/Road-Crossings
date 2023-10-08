@@ -76,7 +76,7 @@ def get_buffers(data: TrajectoryCollection):
         line = GeoSeries(gpd.tools.collect(line.geometry), crs=4326)
 
         logging.info('getting convex hull polygon')
-        hull = line.concave_hull()[0]
+        hull = line.convex_hull[0]
         logging.info('Got buffer')
         yield hull
 
