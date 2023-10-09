@@ -14,11 +14,7 @@ import os
 
 from app.Crossings_Kepler import extract_line_coordinates
 
-
-
-
-
-def get_tracks(data) -> GeoDataFrame:
+def get_tracks(data: Trajectory) -> GeoDataFrame:
     """
     A generator used to retrieve LineString GeoDataFrame
     from TrajectoryCollection in a memory efficient way
@@ -143,7 +139,11 @@ def find_crossings(roads, tracks):
     crossings['mid_t'] = (pd.to_datetime(crossings['prev_t']) + half_timestamp_range).astype('datetime64[ns]')
     return crossings
 
-def create_map(collection: TrajectoryCollection, roads: GeoDataFrame, crossings: GeoDataFrame) -> KeplerGl:
+def create_map(
+        collection: TrajectoryCollection,
+        roads: GeoDataFrame,
+        crossings: GeoDataFrame
+) -> KeplerGl:
     """
     Creates an interactive map to visualize the animal paths, roads, and crossings
 

@@ -1,14 +1,19 @@
-import osmnx._errors
+import logging
 
-from sdk.moveapps_spec import hook_impl
-from movingpandas import TrajectoryCollection, Trajectory
-from app.RoadCrossings import get_roads, get_points, get_tracks, get_buffers, create_map
-from app.RoadCrossings import find_crossings, insert_crossings, memory_check
+import osmnx._errors
+import osmnx as ox
 import pandas as pd
 import geopandas as gpd
+from movingpandas import TrajectoryCollection, Trajectory
+from flask import Flask
+
 from geopandas import GeoDataFrame
-import osmnx as ox
-import logging
+
+
+
+from app.RoadCrossings import get_roads, get_points, get_tracks, get_buffers, create_map
+from app.RoadCrossings import find_crossings, insert_crossings, memory_check
+from sdk.moveapps_spec import hook_impl
 
 class App(object):
 
@@ -71,12 +76,7 @@ class App(object):
 
         # memory_check('final loop')
 
-        m = create_map(
-                data,
-                roads,
-                crossings)
 
-        m.save_to_html(data = None, file_name=self.map_path, center_map=True)
 
         # memory_check('map')
 
@@ -85,6 +85,22 @@ class App(object):
         self.save_geopackage(data,
                         roads,
                         crossings)
+
+        app = Flask(__name__)
+
+        m = create_map(
+            data,
+            roads,
+            crossings)
+
+
+        app.config['map'] = m._repr_html_(center_map=True)
+
+        @app.route("/")
+        def show_map():
+            return (app.config['map']) #map._repr_html_
+
+        app.run()
 
         return TrajectoryCollection(new_trajectory_list)
 
