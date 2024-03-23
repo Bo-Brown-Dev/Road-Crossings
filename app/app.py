@@ -10,6 +10,7 @@ from geopandas import GeoDataFrame
 import osmnx as ox
 import logging
 
+
 class App(object):
 
     def __init__(self, moveapps_io,):
@@ -51,7 +52,7 @@ class App(object):
             try :roads = pd.concat([get_roads(next(buffer_gen)), roads]).drop_duplicates()
 
             except osmnx._errors.EmptyOverpassResponse:
-                individual_id = tracks.trackId[0]
+                individual_id = tracks.individual_local_identifier[0]
                 logging.info(f"Overpass couldn't find any roads near tracks for individual with ID: {individual_id}")
                 new_trajectory_list.append(
                     Trajectory(df = next(track_points), traj_id = individual_id, t='t')
@@ -93,8 +94,8 @@ class App(object):
 
         dtype_conversion = {'prev_t': str, 't': str, }
         tracks = collection.to_line_gdf()[
-            ['timestamps',
-             'trackId',
+            ['timestamp',
+             'individual_local_identifier',
              't',
              'prev_t',
              'geometry'

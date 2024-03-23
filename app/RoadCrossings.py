@@ -27,13 +27,13 @@ def get_tracks(data) -> GeoDataFrame:
     :return: -- iterable generator of GeoDataFrames with geometry of type LineString
     """
 
-    dtype_conversion = {'prev_t': str, 't': str, 'timestamps': str}
+    dtype_conversion = {'prev_t': str, 't': str, 'timestamp': str}
 
     logging.info('getting tracks')
     for track in data:
         yield track.to_line_gdf()[
-        ['timestamps',
-         'trackId',
+        ['timestamp',
+         'individual_local_identifier',
          't',
          'prev_t',
          'geometry'
@@ -55,8 +55,8 @@ def get_points(data) -> GeoDataFrame:
     logging.info('getting points')
     for track in data:
         yield track.to_point_gdf()[
-        ['timestamps',
-         'trackId',
+        ['timestamp',
+         'individual_local_identifier',
          'geometry'
          ]
         ].set_crs(data.trajectories[0].crs)
@@ -157,7 +157,7 @@ def create_map(collection: TrajectoryCollection, roads: GeoDataFrame, crossings:
     crossings['latitude'] = crossings.geometry.y
 
     # converting datetime to string, prevents json error
-    dtype_conversion = {'prev_t': str, 't': str, 'timestamps': str}
+    dtype_conversion = {'prev_t': str, 't': str, 'timestamp': str, }
 
     #local_app_files_root = os.path.
     with open(os.path.join('./app/kepler_config.json'), 'r') as kepler_config_json:
@@ -166,7 +166,7 @@ def create_map(collection: TrajectoryCollection, roads: GeoDataFrame, crossings:
     logging.info('---- Creating Map ----')
     m = KeplerGl(
         data = {
-            'Tracks': extract_line_coordinates(collection.to_line_gdf().astype(dtype_conversion)),
+            'Tracks': extract_line_coordinates(collection.to_line_gdf().astype(dtype_conversion).astype({'timestamp_tz': str})),
             'Roads': roads,
             'Crossing_Points': crossings.astype(dtype_conversion).astype({'mid_t': str})
             },
@@ -203,9 +203,9 @@ def insert_crossings(track_points: GeoDataFrame, crossings: GeoDataFrame, track:
 
     new_points['merged_t'] = new_points['merged_t'].fillna(new_points.index.to_series()).astype('datetime64[ns]')
 
-    new_points = new_points.sort_values(by=['trackId', 'merged_t'])
+    new_points = new_points.sort_values(by=['individual_local_identifier', 'merged_t'])
 
-    new_points.merge(track.to_point_gdf(), how='left', left_on=['trackId', 'merged_t'], right_on=['trackId', 'timestamps'])
+    new_points.merge(track.to_point_gdf(), how='left', left_on=['individual_local_identifier', 'merged_t'], right_on=['individual_local_identifier', 'timestamp'])
 
     trajectory_with_crossings = mpd.Trajectory(df=new_points, traj_id=track.id, t='merged_t')
 
