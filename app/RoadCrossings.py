@@ -6,6 +6,7 @@ import geopandas as gpd
 import movingpandas as mpd
 import osmnx as ox
 import shapely
+import osmnx
 
 import tracemalloc
 import logging
@@ -27,13 +28,13 @@ def get_tracks(data) -> GeoDataFrame:
     :return: -- iterable generator of GeoDataFrames with geometry of type LineString
     """
 
-    dtype_conversion = {'prev_t': str, 't': str, 'timestamp': str}
+    dtype_conversion = {'prev_t': str, 't': str,}
 
     logging.info('getting tracks')
     for track in data:
+        traj_id_col = data.get_traj_id_col()
         yield track.to_line_gdf()[
-        ['timestamp',
-         'individual_local_identifier',
+        [traj_id_col,
          't',
          'prev_t',
          'geometry'
@@ -53,10 +54,15 @@ def get_points(data) -> GeoDataFrame:
     """
 
     logging.info('getting points')
+    traj_id_col = data.get_traj_id_col()
     for track in data:
-        yield track.to_point_gdf()[
-        ['timestamp',
-         'individual_local_identifier',
+        df = track.to_point_gdf()
+        df['t'] = df.index
+
+        traj_id_col = data.get_traj_id_col()
+        yield df[
+        ['t',
+         traj_id_col,
          'geometry'
          ]
         ].set_crs(data.trajectories[0].crs)
@@ -69,20 +75,30 @@ def get_buffers(data: TrajectoryCollection):
     :return: -- Shapely Polygon or MultiPolygon
     """
     logging.info('---- Getting Convex Hull ----')
+    buffers = []
     for track in data:
         logging.info('getting track as line gdf')
         line = track.to_line_gdf()
+
         logging.info('collecting line geometry')
         line = GeoSeries(gpd.tools.collect(line.geometry), crs=4326)
 
         logging.info('getting convex hull polygon')
         hull = line.convex_hull[0]
+
         logging.info('Got buffer')
-        yield hull
+        buffers.append(hull)
+
+    buffers = gpd.GeoSeries(buffers)
+    buffers = buffers.unary_union
+
+    buffers = gpd.GeoSeries(buffers).explode()
+
+    return buffers
 
 
 
-def get_roads(buffers: shapely.Polygon):
+def get_roads(buffers: GeoSeries):
     """
     Queries roads from OpenStreetMap via Overpass using OSMnx
 
@@ -90,22 +106,29 @@ def get_roads(buffers: shapely.Polygon):
     :return: -- A GeoDataFrame of Roads
     """
     logging.info('---- Querying roads within buffer ----')
+    all_roads = None
+    for poly in buffers:
 
-    graph = ox.graph_from_polygon(
-        buffers,
-        network_type='all_private',  # includes all roads, private or not
-        truncate_by_edge=True,  # includes roads that are not fully contained in geometry
-        retain_all=True,
-        clean_periphery=True,
-        simplify=False)  # curves of roads and self-intersections will be nodes, but
-        # we don't include nodes in our map, so the function is to reduce length of lines in resulting set of roads
+        graph = ox.graph_from_polygon(
+            poly,
+            network_type='all_private',  # includes all roads, private or not
+            truncate_by_edge=True,  # includes roads that are not fully contained in geometry
+            retain_all=True,
+            clean_periphery=True,
+            simplify=False)  # curves of roads and self-intersections will be nodes, but
+            # we don't include nodes in our map, so the function is to reduce length of lines in resulting set of roads
 
-    logging.info('converting graph to GeoDataFrame')
-
-    roads = ox.utils_graph.graph_to_gdfs(graph, nodes=False)
+        logging.info('converting graph to GeoDataFrame')
+        try:
+            if all_roads is None:
+                all_roads = ox.utils_graph.graph_to_gdfs(graph, nodes=False)
+            elif all_roads is not None:
+                all_roads = gpd.GeoDataFrame(pd.concat([all_roads, ox.utils_graph.graph_to_gdfs(graph, nodes=False)]), geometry='geometry')
+        except osmnx._errors.EmptyOverpassResponse:
+            logging.info('No roads found within polygon, proceeding to next polygon (if any)')
 
     logging.info('Roads Retrieved')
-    return roads
+    return all_roads
 
 def find_crossings(roads, tracks):
     """
@@ -157,20 +180,21 @@ def create_map(collection: TrajectoryCollection, roads: GeoDataFrame, crossings:
     crossings['latitude'] = crossings.geometry.y
 
     # converting datetime to string, prevents json error
-    dtype_conversion = {'prev_t': str, 't': str, 'timestamp': str, }
+    dtype_conversion = {'prev_t': str, 't': str }
 
-    #local_app_files_root = os.path.
+    # local_app_files_root = os.path.
     with open(os.path.join('./app/kepler_config.json'), 'r') as kepler_config_json:
         kepler_config = json.load(kepler_config_json)
 
     logging.info('---- Creating Map ----')
     m = KeplerGl(
-        data = {
-            'Tracks': extract_line_coordinates(collection.to_line_gdf().astype(dtype_conversion).astype({'timestamp_tz': str})),
+        data={
+            'Tracks': extract_line_coordinates(
+                collection.to_line_gdf()).to_json(default=str),
             'Roads': roads,
-            'Crossing_Points': crossings.astype(dtype_conversion).astype({'mid_t': str})
-            },
-        )
+            'Crossing_Points': crossings.to_json(default=str)
+        },
+    )
 
     m.config = kepler_config
 
@@ -188,6 +212,8 @@ def insert_crossings(track_points: GeoDataFrame, crossings: GeoDataFrame, track:
     :return:  -- A MovingPandas Trajectory with crossing points inserted
     """
 
+
+
     common_crs = 4326
 
     logging.info('---- Inserting Crossing Points to result ----')
@@ -203,12 +229,13 @@ def insert_crossings(track_points: GeoDataFrame, crossings: GeoDataFrame, track:
 
     new_points['merged_t'] = new_points['merged_t'].fillna(new_points.index.to_series()).astype('datetime64[ns]')
 
-    new_points = new_points.sort_values(by=['individual_local_identifier', 'merged_t'])
+    traj_id_col = track.get_traj_id_col()
 
-    new_points.merge(track.to_point_gdf(), how='left', left_on=['individual_local_identifier', 'merged_t'], right_on=['individual_local_identifier', 'timestamp'])
+    new_points = new_points.sort_values(by=[traj_id_col, 'merged_t'])
+
+    new_points.merge(track.to_point_gdf(), how='left', left_on=[traj_id_col, 'merged_t'], right_on=[traj_id_col, 't'])
 
     trajectory_with_crossings = mpd.Trajectory(df=new_points, traj_id=track.id, t='merged_t')
-
 
     logging.info('inserted crossing points')
     return trajectory_with_crossings

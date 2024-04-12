@@ -32,13 +32,12 @@ class App(object):
         ox.settings.use_cache = False
         ox.settings.log_console = True
 
-        buffer_gen = get_buffers(data)
+        buffers = get_buffers(data)
+        roads = get_roads(buffers)
 
         tracks_gen = get_tracks(data)
 
         track_points = get_points(data)
-
-        roads = gpd.GeoDataFrame()
 
         crossings = gpd.GeoDataFrame()
 
@@ -48,16 +47,6 @@ class App(object):
         for track in data:
 
             tracks = next(tracks_gen)
-
-            try :roads = pd.concat([get_roads(next(buffer_gen)), roads]).drop_duplicates()
-
-            except osmnx._errors.EmptyOverpassResponse:
-                individual_id = tracks.individual_local_identifier[0]
-                logging.info(f"Overpass couldn't find any roads near tracks for individual with ID: {individual_id}")
-                new_trajectory_list.append(
-                    Trajectory(df = next(track_points), traj_id = individual_id, t='t')
-                )
-                continue
 
             traj_crossings = find_crossings(roads, tracks)
 
@@ -81,21 +70,20 @@ class App(object):
 
         # memory_check('map')
 
-
-
-        self.save_geopackage(data,
-                        roads,
-                        crossings)
+        self.save_geopackage(
+            data,
+            roads,
+            crossings)
 
         return TrajectoryCollection(new_trajectory_list)
 
-    def save_geopackage(self, collection: GeoDataFrame, roads: GeoDataFrame, crossings: GeoDataFrame) -> None:
+    def save_geopackage(self, collection: TrajectoryCollection, roads: GeoDataFrame, crossings: GeoDataFrame) -> None:
         logging.info('Writing to Geopackage')
 
         dtype_conversion = {'prev_t': str, 't': str, }
+        traj_id_col = collection.get_traj_id_col()
         tracks = collection.to_line_gdf()[
-            ['timestamp',
-             'individual_local_identifier',
+            [traj_id_col,
              't',
              'prev_t',
              'geometry'
