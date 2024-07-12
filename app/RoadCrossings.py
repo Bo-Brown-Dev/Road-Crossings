@@ -108,18 +108,18 @@ def get_roads(buffers: GeoSeries):
     logging.info('---- Querying roads within buffer ----')
     all_roads = None
     for poly in buffers:
-
-        graph = ox.graph_from_polygon(
-            poly,
-            network_type='all_private',  # includes all roads, private or not
-            truncate_by_edge=True,  # includes roads that are not fully contained in geometry
-            retain_all=True,
-            clean_periphery=True,
-            simplify=False)  # curves of roads and self-intersections will be nodes, but
-            # we don't include nodes in our map, so the function is to reduce length of lines in resulting set of roads
-
-        logging.info('converting graph to GeoDataFrame')
         try:
+            graph = ox.graph_from_polygon(
+                poly,
+                network_type='all_private',  # includes all roads, private or not
+                truncate_by_edge=True,  # includes roads that are not fully contained in geometry
+                retain_all=True,
+                clean_periphery=True,
+                simplify=False)  # curves of roads and self-intersections will be nodes, but
+                # we don't include nodes in our map, so the function is to reduce length of lines in resulting set of roads
+
+            logging.info('converting graph to GeoDataFrame')
+
             if all_roads is None:
                 all_roads = ox.utils_graph.graph_to_gdfs(graph, nodes=False)
             elif all_roads is not None:
@@ -128,6 +128,7 @@ def get_roads(buffers: GeoSeries):
             logging.info('No roads found within polygon, proceeding to next polygon (if any)')
 
     logging.info('Roads Retrieved')
+    all_roads = all_roads.reset_index(drop=True)
     return all_roads
 
 def find_crossings(roads, tracks):

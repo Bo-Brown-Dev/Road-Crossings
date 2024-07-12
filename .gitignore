@@ -416,3 +416,6 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/python,r,intellij,macos,windows,visualstudiocode
+/resources/samples/input1.pickle
+/resources/samples/tapirs.pickle
+/resources/samples/tapirs.pickle
