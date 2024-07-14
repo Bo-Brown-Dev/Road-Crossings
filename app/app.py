@@ -9,6 +9,7 @@ import geopandas as gpd
 from geopandas import GeoDataFrame
 import osmnx as ox
 import logging
+import os
 
 
 class App(object):
@@ -28,9 +29,10 @@ class App(object):
     @hook_impl
     def execute(self, data: TrajectoryCollection, config: dict) -> TrajectoryCollection:
         """Your app code goes here"""
-
+        ox.settings.overpass_url = os.getenv('OVERPASS_API', "https://overpass-api.de/api")
         ox.settings.use_cache = False
         ox.settings.log_console = True
+
 
         buffers = get_buffers(data)
         roads = get_roads(buffers)
